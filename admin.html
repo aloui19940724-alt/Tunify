@@ -4,55 +4,58 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>لوحة الإدارة</title>
+
 <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
 
 <header>
-<div class="logo">Tunify Admin</div>
+    <div class="logo">Tunify Admin</div>
 </header>
 
 <div class="profile">
 
-<div class="profile-card">
+    <div class="profile-card">
 
-<h2>إضافة منتج</h2>
+        <h2>إضافة منتج</h2>
 
-<input id="name"
-placeholder="اسم المنتج"
-style="width:100%;padding:12px;margin:5px 0;">
+        <input
+        id="name"
+        placeholder="اسم المنتج"
+        style="width:100%;padding:12px;margin:5px 0;">
 
-<input id="price"
-placeholder="السعر"
-style="width:100%;padding:12px;margin:5px 0;">
+        <input
+        id="price"
+        placeholder="السعر"
+        style="width:100%;padding:12px;margin:5px 0;">
 
-<input
-type="file"
-id="imageFile"
-accept="image/*">
-style="width:100%;padding:12px;margin:5px 0;">
+        <input
+        type="file"
+        id="imageFile"
+        accept="image/*"
+        style="width:100%;padding:12px;margin:5px 0;">
 
-<textarea
-id="description"
-placeholder="الوصف"
-style="width:100%;padding:12px;margin:5px 0;">
-</textarea>
+        <textarea
+        id="description"
+        placeholder="الوصف"
+        style="width:100%;padding:12px;margin:5px 0;"></textarea>
 
-<button
-class="logout-btn"
-onclick="addProduct()">
-إضافة المنتج
-</button>
+        <button
+        class="logout-btn"
+        onclick="addProduct()">
+        إضافة المنتج
+        </button>
 
-</div>
+    </div>
 
-<div class="profile-card">
+    <div class="profile-card">
 
-<h2>المنتجات</h2>
+        <h2>المنتجات</h2>
 
-<div id="productsList"></div>
+        <div id="productsList"></div>
 
-</div>
+    </div>
 
 </div>
 
@@ -63,50 +66,102 @@ onclick="addProduct()">
 
 async function addProduct(){
 
-const name=document.getElementById("name").value;
-const price=document.getElementById("price").value;
-const image=document.getElementById("image").value;
-const description=document.getElementById("description").value;
+    const name =
+    document.getElementById("name").value;
 
-const {error}=await supabaseClient
-.from("products")
-.insert([{
-name,
-price,
-image,
-description
-}]);
+    const price =
+    document.getElementById("price").value;
 
-if(error){
-alert(error.message);
-}else{
-alert("تمت إضافة المنتج");
-loadProducts();
-}
+    const description =
+    document.getElementById("description").value;
+
+    const file =
+    document.getElementById("imageFile").files[0];
+
+    if(!file){
+        alert("اختر صورة للمنتج");
+        return;
+    }
+
+    const fileName =
+    Date.now() + "-" + file.name;
+
+    const { error: uploadError } =
+    await supabaseClient.storage
+    .from("products")
+    .upload(fileName,file);
+
+    if(uploadError){
+        alert(uploadError.message);
+        return;
+    }
+
+    const { data: imageData } =
+    supabaseClient.storage
+    .from("products")
+    .getPublicUrl(fileName);
+
+    const image =
+    imageData.publicUrl;
+
+    const { error } =
+    await supabaseClient
+    .from("products")
+    .insert([{
+        name,
+        price,
+        description,
+        image
+    }]);
+
+    if(error){
+        alert(error.message);
+        return;
+    }
+
+    alert("تمت إضافة المنتج بنجاح");
+
+    document.getElementById("name").value="";
+    document.getElementById("price").value="";
+    document.getElementById("description").value="";
+    document.getElementById("imageFile").value="";
+
+    loadProducts();
 
 }
 
 async function loadProducts(){
 
-const {data}=await supabaseClient
-.from("products")
-.select("*");
+    const { data } =
+    await supabaseClient
+    .from("products")
+    .select("*");
 
-let html="";
+    let html = "";
 
-data.forEach(product=>{
+    data.forEach(product => {
 
-html+=`
-<div style="padding:15px;border-bottom:1px solid #333">
-<b>${product.name}</b>
-<br>
-${product.price} د.ت
-</div>
-`;
+        html += `
+        <div style="padding:15px;border-bottom:1px solid #333">
 
-});
+            <img
+            src="${product.image}"
+            style="width:70px;height:70px;object-fit:cover;border-radius:10px;">
 
-document.getElementById("productsList").innerHTML=html;
+            <br><br>
+
+            <b>${product.name}</b>
+
+            <br>
+
+            ${product.price} د.ت
+
+        </div>
+        `;
+
+    });
+
+    document.getElementById("productsList").innerHTML = html;
 
 }
 
