@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول - Tunify</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+.auth-container{
+max-width:400px;
+margin:100px auto;
+background:#181818;
+padding:30px;
+border-radius:15px;
+}
+
+.auth-container h2{
+text-align:center;
+margin-bottom:20px;
+color:#ff7a00;
+}
+
+.auth-container input{
+width:100%;
+padding:14px;
+margin-bottom:15px;
+border:none;
+border-radius:10px;
+background:#222;
+color:#fff;
+}
+
+.auth-container button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:#ff7a00;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+.auth-container a{
+color:#ff7a00;
+text-decoration:none;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="auth-container">
+
+<h2>تسجيل الدخول</h2>
+
+<input
+type="email"
+id="email"
+placeholder="البريد الإلكتروني">
+
+<input
+type="password"
+id="password"
+placeholder="كلمة المرور">
+
+<button onclick="login()">
+تسجيل الدخول
+</button>
+
+<br><br>
+
+<p>
+ليس لديك حساب؟
+<a href="register.html">
+إنشاء حساب
+</a>
+</p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+
+async function login(){
+
+const email =
+document.getElementById("email").value;
+
+const password =
+document.getElementById("password").value;
+
+const { error } =
+await supabaseClient.auth.signInWithPassword({
+email,
+password
+});
+
+if(error){
+
+alert(error.message);
+
+return;
+}
+
+alert("تم تسجيل الدخول بنجاح");
+
+window.location.href="index.html";
+
+}
+
+</script>
+
+</body>
+</html>
