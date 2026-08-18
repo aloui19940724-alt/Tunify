@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حسابي | Tunify</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.profile{
+max-width:800px;
+margin:50px auto;
+padding:20px;
+}
+
+.profile-card{
+background:#181818;
+padding:25px;
+border-radius:15px;
+margin-bottom:20px;
+}
+
+.profile-card h2{
+color:#ff7a00;
+margin-bottom:15px;
+}
+
+.logout-btn{
+width:100%;
+padding:15px;
+border:none;
+background:#ff7a00;
+color:white;
+font-size:18px;
+border-radius:10px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">Tunify</div>
+
+</header>
+
+<div class="profile">
+
+<div class="profile-card">
+<h2>معلومات الحساب</h2>
+
+<p>
+الاسم:
+<span id="userName">...</span>
+</p>
+
+<br>
+
+<p>
+البريد:
+<span id="userEmail">...</span>
+</p>
+
+</div>
+
+<div class="profile-card">
+
+<h2>طلباتي</h2>
+
+<div id="orders">
+لا توجد طلبات حالياً
+</div>
+
+</div>
+
+<button class="logout-btn" onclick="logout()">
+تسجيل الخروج
+</button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+
+async function loadProfile(){
+
+const {
+data:{user}
+}=await supabaseClient.auth.getUser();
+
+if(!user){
+window.location.href="login.html";
+return;
+}
+
+document.getElementById("userEmail").textContent=user.email;
+
+const {data}=await supabaseClient
+.from("profiles")
+.select("*")
+.eq("id",user.id)
+.single();
+
+if(data){
+document.getElementById("userName").textContent=data.name;
+}
+
+}
+
+async function logout(){
+
+await supabaseClient.auth.signOut();
+
+window.location.href="login.html";
+
+}
+
+loadProfile();
+
+</script>
+
+</body>
+</html>
