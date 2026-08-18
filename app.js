@@ -31,3 +31,40 @@ async function goToProfile() {
     }
 
 }
+async function loadProducts() {
+
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*");
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const productsGrid = document.getElementById("productsGrid");
+
+  productsGrid.innerHTML = "";
+
+  data.forEach(product => {
+
+    productsGrid.innerHTML += `
+      <div class="product-card">
+        <img src="${product.image}" alt="${product.title}">
+        <h3>${product.title}</h3>
+        <p class="price">${product.price} د.ت</p>
+        <button onclick="viewProduct('${product.id}')">
+          عرض المنتج
+        </button>
+      </div>
+    `;
+  });
+
+}
+
+function viewProduct(id){
+  localStorage.setItem("productId", id);
+  window.location.href = "product.html";
+}
+
+loadProducts();
