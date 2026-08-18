@@ -1,1 +1,229 @@
-....
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة إدارة Tunify</title>
+
+<link rel="stylesheet" href="style.css">
+
+<style>
+
+.admin-container{
+max-width:900px;
+margin:30px auto;
+padding:20px;
+}
+
+.admin-box{
+background:#181818;
+padding:20px;
+border-radius:15px;
+margin-bottom:20px;
+}
+
+.admin-box h2{
+color:#ff7a00;
+margin-bottom:20px;
+}
+
+input, textarea, select{
+width:100%;
+padding:12px;
+margin-bottom:12px;
+background:#111;
+border:1px solid #333;
+color:white;
+border-radius:8px;
+}
+
+textarea{
+height:120px;
+resize:none;
+}
+
+.admin-btn{
+background:#ff7a00;
+color:white;
+border:none;
+padding:12px;
+width:100%;
+cursor:pointer;
+border-radius:8px;
+font-size:16px;
+}
+
+.products-list{
+display:grid;
+gap:15px;
+}
+
+.product-item{
+background:#111;
+padding:15px;
+border-radius:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.delete-btn{
+background:red;
+color:white;
+border:none;
+padding:8px 15px;
+cursor:pointer;
+border-radius:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="admin-container">
+
+<div class="admin-box">
+
+<h2>إضافة منتج جديد</h2>
+
+<input id="name" placeholder="اسم المنتج">
+
+<textarea id="description" placeholder="وصف المنتج"></textarea>
+
+<input id="price" type="number" placeholder="السعر">
+
+<input id="image" placeholder="رابط الصورة">
+
+<select id="category">
+<option value="">اختر التصنيف</option>
+<option value="1">الألعاب</option>
+<option value="2">الاشتراكات</option>
+<option value="3">الخدمات الرقمية</option>
+<option value="4">البطاقات الرقمية</option>
+</select>
+
+<button class="admin-btn" onclick="addProduct()">
+إضافة المنتج
+</button>
+
+</div>
+
+<div class="admin-box">
+
+<h2>المنتجات الحالية</h2>
+
+<div id="productsList" class="products-list"></div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<script>
+
+async function addProduct(){
+
+const name =
+document.getElementById("name").value;
+
+const description =
+document.getElementById("description").value;
+
+const price =
+document.getElementById("price").value;
+
+const image =
+document.getElementById("image").value;
+
+const category_id =
+document.getElementById("category").value;
+
+const { error } = await supabaseClient
+.from("products")
+.insert([{
+name,
+description,
+price,
+image,
+category_id
+}]);
+
+if(error){
+
+alert(error.message);
+return;
+
+}
+
+alert("تم إضافة المنتج");
+
+loadProducts();
+
+}
+
+async function loadProducts(){
+
+const { data , error } = await supabaseClient
+.from("products")
+.select("*")
+.order("id",{ascending:false});
+
+if(error) return;
+
+const container =
+document.getElementById("productsList");
+
+container.innerHTML="";
+
+data.forEach(product=>{
+
+container.innerHTML += `
+<div class="product-item">
+
+<div>
+<h3>${product.name}</h3>
+<p>${product.price} د.ت</p>
+</div>
+
+<button
+class="delete-btn"
+onclick="deleteProduct(${product.id})">
+حذف
+</button>
+
+</div>
+`;
+
+});
+
+}
+
+async function deleteProduct(id){
+
+const { error } = await supabaseClient
+.from("products")
+.delete()
+.eq("id",id);
+
+if(error){
+
+alert(error.message);
+return;
+
+}
+
+loadProducts();
+
+}
+
+loadProducts();
+
+</script>
+
+</body>
+</html>
